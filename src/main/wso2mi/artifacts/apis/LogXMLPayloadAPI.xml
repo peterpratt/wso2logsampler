@@ -1,0 +1,50 @@
+<api xmlns="http://ws.apache.org/ns/synapse" name="LogXMLPayloadAPI" context="/logxml">
+    <resource methods="POST" uri-template="/payload" >
+        <inSequence>
+            <log level="custom">
+                <property name="Payload" expression="json-eval($.)"/>
+            </log>
+            <property name="Payload" expression="json-eval($.)"/>
+            <log level="custom">
+                
+                <!-- -->
+                <property name="Payload base64" expression="fn:concat('Base64 version: ', base64Encode(get-property('Payload')))"/>
+            </log>
+            <script language="js">
+                <![CDATA[
+                    var payload = mc.getProperty('Payload');
+                    payload = payload.replace(/[\r\n]+/g, '');
+                    mc.setProperty('Payload', payload);
+                ]]>
+            </script>
+            <log level="custom">
+                <property name="Modified Payload" expression="get-property('Payload')"/>
+            </log>
+
+            <respond description="foo" />
+        </inSequence>
+    </resource>
+
+    <resource methods="POST" uri-template="/payloadxml" >
+        <inSequence>
+             <property name="XMLPayload" expression="$body//book"/>
+            <log level="custom">
+                <property name="Modified XML Payload" expression="$body" scope="default" type=""/>
+            </log>
+            <property name="PayloadBase64" expression="base64Encode(fn:concat('Base64 version: ', $body))" scope="default" type="STRING"/>
+            <script language="js">
+                <![CDATA[
+                    var payload = mc.getProperty('XMLPayload');
+                    payload = payload.replace(/[\r\n]+/g, '');
+                    mc.setProperty('XMLPayload', payload);
+                ]]>
+            </script>
+            <log level="custom">
+                <property name="Payload XML STING" expression="get-property('XMLPayload')"/>
+            </log>
+
+            <respond description="faa"/>
+        </inSequence>
+    </resource>
+
+</api>
